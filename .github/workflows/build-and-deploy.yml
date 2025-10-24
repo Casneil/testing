@@ -7,11 +7,23 @@ on:
 
 jobs:
   build-and-deploy:
+    permissions:
+      deployments: write
+
     runs-on: ubuntu-latest
     env:
       REGION: eu-central-1
 
+
     steps:
+      - name: Create GitHub deployment
+        uses: chrnorm/deployment-action@v2
+        id: deployment
+        with:
+          token: '${{ github.token }}'
+          environment-url: https://d2zddj4dy0ay4b.cloudfront.net/
+          environment: production
+
       - name: Checkout code
         uses: actions/checkout@v5
 
@@ -57,3 +69,20 @@ jobs:
       #     aws cloudfront create-invalidation \
       #       --distribution-id ${{ secrets.CLOUDFRONT_ID }} \
       #       --paths "/*"
+      - name: Update deployment status (success)
+        if: success()
+        uses: chrnorm/deployment-status@v2
+        with:
+          token: '${{ github.token }}'
+          environment-url: http://my-app-url.com
+          state: 'success'
+          deployment-id: ${{ steps.deployment.outputs.deployment_id }}
+
+      - name: Update deployment status (failure)
+        if: failure()
+        uses: chrnorm/deployment-status@v2
+        with:
+          token: '${{ github.token }}'
+          environment-url: http://my-app-url.com
+          state: 'failure'
+          deployment-id: ${{ steps.deployment.outputs.deployment_id }}
