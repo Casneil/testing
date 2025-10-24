@@ -49,9 +49,20 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ env.REGION }}
 
+      ##### Manual Deployment does not show up under "Deployments on github"
+      # - name: Deploy to S3
+      #   run: |
+      #     aws s3 sync --delete ${{ env.DIST }}/client/ ${{ env.BUCKET }}
+
       - name: Deploy to S3
-        run: |
-          aws s3 sync --delete ${{ env.DIST }}/client/ ${{ env.BUCKET }}
+        uses: reggionick/s3-deploy@v4
+        with:
+          folder: build
+          bucket: ${{ secrets.S3_BUCKET }}
+          bucket-region: ${{ env.REGION }}
+          dist-id: ${{ env.DIST_ID }}
+          invalidation: "/*"
+          delete-removed: true
 
       - name: Invalidate cloudfront cache
         run: |
