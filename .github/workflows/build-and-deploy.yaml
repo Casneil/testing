@@ -9,10 +9,7 @@ jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
     env:
-      BUCKET: s3://www.casneil-static-website
-      DIST: build
       REGION: eu-central-1
-      DIST_ID: E1HPMQHHD9YOND
 
     steps:
       - name: Checkout code
@@ -21,7 +18,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '24'
 
       - name: Install pnpm
         uses: pnpm/action-setup@v2
@@ -49,23 +46,14 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ env.REGION }}
 
-      ##### Manual Deployment does not show up under "Deployments on github"
-      # - name: Deploy to S3
-      #   run: |
-      #     aws s3 sync --delete ${{ env.DIST }}/client/ ${{ env.BUCKET }}
-
-      - name: Deploy to S3
-        uses: reggionick/s3-deploy@v4
-        with:
-          folder: build
-          bucket: ${{ secrets.S3_BUCKET }}
-          bucket-region: ${{ env.REGION }}
-          dist-id: ${{ env.DIST_ID }}
-          invalidation: "/*"
-          delete-removed: true
-
-      - name: Invalidate cloudfront cache
+      ##### Manual Deployment
+      - name: Sync with S3
         run: |
-          aws cloudfront create-invalidation \
-            --distribution-id ${{ env.DIST_ID }} \
-            --paths "/*"
+          aws s3 sync --delete build/client/ ${{ secrets.BUCKET }}
+
+      ######## Allow only 1000 per month on free teir
+      # - name: Invalidate cloudfront cache
+      #   run: |
+      #     aws cloudfront create-invalidation \
+      #       --distribution-id ${{ secrets.CLOUDFRONT_ID }} \
+      #       --paths "/*"
