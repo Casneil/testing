@@ -51,7 +51,7 @@ jobs:
 
       - name: Deploy to S3
         run: |
-          aws s3 sync --delete ${{ env.DIST }}/ ${{ env.BUCKET }}
+          aws s3 sync --delete ${{ env.DIST }}/client/ ${{ env.BUCKET }}
 
       - name: Invalidate cloudfront cache
         run: |
