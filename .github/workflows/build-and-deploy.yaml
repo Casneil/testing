@@ -9,7 +9,7 @@ jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
     env:
-      BUCKET: arn:aws:s3:::www.casneil-static-website
+      BUCKET: s3://www.casneil-static-website
       DIST: build
       REGION: eu-central-1
       DIST_ID: E1HPMQHHD9YOND
@@ -51,7 +51,7 @@ jobs:
 
       - name: Deploy to S3
         run: |
-          aws s3 sync --delete ${{ env.DIST }}/ ${{ secrets.S3_BUCKET }}
+          aws s3 sync --delete ${{ env.DIST }}/ ${{ secrets.BUCKET }}
 
       - name: Invalidate cloudfront cache
         run: |
