@@ -9,7 +9,7 @@ jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
     env:
-      BUCKET: arn:aws:s3:::www.casneil-static-website/
+      BUCKET: arn:aws:s3:::www.casneil-static-website
       DIST: build
       REGION: eu-central-1
       DIST_ID: E1HPMQHHD9YOND
