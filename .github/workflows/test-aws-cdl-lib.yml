@@ -43,6 +43,11 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ env.REGION }}
 
+      - name: 🧩 Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
       - name: 🚀 Deploy CDK stack
         run: pnpm run deploy -- --context sources=build/client
         env:
