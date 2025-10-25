@@ -18,7 +18,7 @@ jobs:
     env:
       REGION: eu-central-1
       CLOUDFRONT_URL: ${{ secrets.CLOUDFRONT_URL }}
-      ACCOUNT_ID: ${{ secrets.ACCOUNT_ID }}
+      ACCOUNT_ID: 461773158417
 
     steps:
       - name: 💻 Checkout code

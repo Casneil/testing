@@ -7,7 +7,7 @@ import * as origins from 'aws-cdk-lib/aws-cloudfront-origins';
 import * as s3deploy from 'aws-cdk-lib/aws-s3-deployment';
 
 
-const secrets = { CLOUDFRONT_URL: process.env.CLOUDFRONT_URL, REGION: process.env.REGION, INVALIDATE_CACHE: process.env.INVALIDATE_CACHE } as const;
+const environment = { CLOUDFRONT_URL: process.env.CLOUDFRONT_URL, REGION: process.env.REGION, INVALIDATE_CACHE: process.env.INVALIDATE_CACHE } as const;
 
 interface CustomStackProps extends cdk.StackProps {
 	sources?: string;
@@ -56,7 +56,7 @@ class Stack extends cdk.Stack {
 
 
 new Stack(app, 'YourCdkAppStack', {
-	env: { region: secrets.REGION ?? 'eu-central-1' },
+	env: { region: environment.REGION ?? 'eu-central-1' },
 	sources, // Custom prop you might use inside your stack
 });
 
