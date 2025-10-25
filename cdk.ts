@@ -1,64 +1,86 @@
 #!/usr/bin/env node
-import * as cdk from 'aws-cdk-lib';
+import { BlockPublicAccess, Bucket } from 'aws-cdk-lib/aws-s3';
+import { ViewerProtocolPolicy, Distribution } from 'aws-cdk-lib/aws-cloudfront';
 import { Construct } from 'constructs';
-import * as s3 from 'aws-cdk-lib/aws-s3';
-import * as cloudfront from 'aws-cdk-lib/aws-cloudfront';
-import * as origins from 'aws-cdk-lib/aws-cloudfront-origins';
-import * as s3deploy from 'aws-cdk-lib/aws-s3-deployment';
+import { RemovalPolicy, Stack } from 'aws-cdk-lib';
+import type{ StackProps } from 'aws-cdk-lib';
 
+import { ARecord, HostedZone, RecordTarget } from 'aws-cdk-lib/aws-route53';
+import { Certificate, CertificateValidation } from 'aws-cdk-lib/aws-certificatemanager';
+import { CloudFrontTarget } from 'aws-cdk-lib/aws-route53-targets';
+import { S3BucketOrigin } from 'aws-cdk-lib/aws-cloudfront-origins';
 
-const environment = { CLOUDFRONT_URL: process.env.CLOUDFRONT_URL, REGION: process.env.REGION, INVALIDATE_CACHE: process.env.INVALIDATE_CACHE } as const;
+import 'source-map-support/register';
+import { App } from 'aws-cdk-lib';
+const app = new App();
 
-interface CustomStackProps extends cdk.StackProps {
-	sources?: string;
+const environment = app.node.tryGetContext('environment') || 'stage';
+
+interface S3CloudFrontStackProps extends StackProps {
+	environment: string;
 }
 
-const app = new cdk.App();
-
-// You can pass context values here or get them from CLI --context
-const sources = app.node.tryGetContext('sources') ?? 'build/client/';
-
-class Stack extends cdk.Stack {
-	constructor(scope: Construct, id: string, props?: CustomStackProps) {
+export class CdkSpaDeploymentOacStack extends Stack {
+	constructor(scope: Construct, id: string, props: S3CloudFrontStackProps) {
 		super(scope, id, props);
 
-		const bucket = new s3.Bucket(this, 'WebsiteBucket', {
-			removalPolicy: cdk.RemovalPolicy.DESTROY,
-			autoDeleteObjects: true,
-			publicReadAccess: true,
-			blockPublicAccess:s3.BlockPublicAccess.BLOCK_ACLS_ONLY,
-			bucketName: "test-aws-cdk-lib",
+		// Simpler, cleaner, modernized method below
 
+		const { environment } = props;
+
+		const domainName = 'casneil.live'
+
+		const hostedZone = new HostedZone(
+			this,
+			'HostedZone',
+			{
+				zoneName: domainName
+			}
+		);
+
+		const certificate = new Certificate(
+			this,
+			'Cert',
+			{
+				domainName,
+				validation: CertificateValidation.fromDns(hostedZone)
+			}
+		);
+
+		// Dynamically name the S3 bucket based on the environment
+		const bucket = new Bucket(this, `${app.node.id}-bucket-${environment}`, {
+			bucketName: `cdk-test-bucket-${environment}`,
+			blockPublicAccess: BlockPublicAccess.BLOCK_ALL,
+			removalPolicy: RemovalPolicy.DESTROY,
+			autoDeleteObjects: true
 		});
 
-		new s3deploy.BucketDeployment(this, 'DeployWebsite', {
-			sources: [s3deploy.Source.asset(props?.sources ?? 'build/client')],
-			destinationBucket: bucket,
-		});
-
-		const distribution = new cloudfront.Distribution(this, 'WebsiteDistribution', {
-			defaultBehavior: { origin: new origins.S3StaticWebsiteOrigin(bucket),  },
+		const dist = new Distribution(this, 'Distribution', {
 			defaultRootObject: 'index.html',
-			comment: 'CloudFront distribution for the website',
+			defaultBehavior: {
+				// Using new S3BucketOrigin construct with OAC functionality built in! aws-cdk (and lib) version 2.156.0 and up
+				origin: S3BucketOrigin.withOriginAccessControl(bucket),
+				viewerProtocolPolicy: ViewerProtocolPolicy.REDIRECT_TO_HTTPS
+			},
+			domainNames: [domainName],
+			certificate,
 		});
 
-		new cdk.CfnOutput(this, 'CloudFrontDistributionId', {
-			value: distribution.distributionId,
-			description: 'CloudFront Distribution ID',
-		});
-
-		new cdk.CfnOutput(this, 'CloudFrontURL', {
-			value: distribution.distributionDomainName,
-			description: 'CloudFront Distribution Domain Name',
-		});
+		new ARecord(
+			this,
+			'ARecord',
+			{
+				zone: hostedZone,
+				target: RecordTarget.fromAlias(new CloudFrontTarget(dist))
+			}
+		);
 	}
 }
 
-
-new Stack(app, 'YourCdkAppStack', {
-	env: { region: environment.REGION ?? 'eu-central-1' },
-	sources, // Custom prop you might use inside your stack
+new CdkSpaDeploymentOacStack(app, `S3CloudFrontOACStack-${environment}`, {
+	environment: environment,
 });
+
 
 // How to handle cache invalidation ?
 // 	You should explicitly run a CloudFront cache invalidation in your GitHub Actions deploy workflow after you upload new content to S3.
