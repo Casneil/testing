@@ -7,15 +7,17 @@
     "dev": "react-router dev",
     "test-prod": "node prod-server.js",
     "typecheck": "react-router typegen && tsc",
-		"cdk": "cdk",
-		"deploy": "pnpm run build && cdk deploy --require-approval never"
+    "cdk": "cdk",
+    "deploy": "pnpm run build && pnpm cdk deploy --app \"pnpx tsx cdk.ts\" --require-approval never"
   },
   "dependencies": {
     "@react-router/node": "^7.9.2",
     "@react-router/serve": "^7.9.2",
+    "aws-cdk": "^2.1031.0",
     "aws-cdk-lib": "^2.221.0",
     "constructs": "^10.4.2",
     "isbot": "^5.1.31",
+    "node": "^24.10.0",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
     "react-router": "^7.9.2"

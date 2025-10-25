@@ -26,6 +26,7 @@ class Stack extends cdk.Stack {
 			removalPolicy: cdk.RemovalPolicy.DESTROY,
 			autoDeleteObjects: true,
 			publicReadAccess: true,
+			blockPublicAccess:s3.BlockPublicAccess.BLOCK_ACLS_ONLY,
 			bucketName: "test-aws-cdk-lib",
 
 		});
