@@ -20,6 +20,9 @@ jobs:
       CLOUDFRONT_URL: ${{ secrets.CLOUDFRONT_URL }}
 
     steps:
+      - name: 💻 Checkout code
+        uses: actions/checkout@v5
+
       - name: ➕ Create GitHub deployment
         uses: chrnorm/deployment-action@v2
         id: deployment
