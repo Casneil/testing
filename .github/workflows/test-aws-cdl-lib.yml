@@ -44,7 +44,7 @@ jobs:
           aws-region: ${{ env.REGION }}
 
       - name: 🚀 Deploy CDK stack
-        run: pnpm run deploy --context sources=build/client
+        run: pnpm run deploy -- --context sources=build/client
         env:
           AWS_REGION: ${{ env.REGION }}
 
