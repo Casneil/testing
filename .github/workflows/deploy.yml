@@ -34,6 +34,7 @@ jobs:
           name: client-build
           run-id: ${{ github.event.workflow_run.id }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: build/client/
 
       - name: 🕹️ Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v5
