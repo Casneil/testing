@@ -54,6 +54,9 @@ jobs:
       - name: 🎇 Install dependencies
         run: pnpm install
 
+      - name: 🥾 CDK Bootstrap
+        run: cdk bootstrap aws://${{ secrets.ACCOUNT_ID }}/${{ env.REGION }
+
       - name: 🚀 Deploy CDK stack
         run: pnpm run deploy -- --context sources=build/client
         env:
