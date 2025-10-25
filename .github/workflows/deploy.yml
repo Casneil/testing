@@ -28,7 +28,7 @@ jobs:
           environment: production
           environment-url: ${{ env.CLOUDFRONT_URL }}
 
-      - name: 📥 Download build artifact
+      - name: 📥 Download build artifacts
         uses: actions/download-artifact@v4
         with:
         name: client-build
