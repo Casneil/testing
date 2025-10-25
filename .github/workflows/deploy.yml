@@ -1,71 +1,71 @@
-name: 🚀 Deploy to CloudFront
+# name: 🚀 Deploy to CloudFront
 
-on:
-  workflow_run:
-    workflows: ["🦺 Build"]
-    types:
-      - completed
+# on:
+#   workflow_run:
+#     workflows: ["🦺 Build"]
+#     types:
+#       - completed
 
-jobs:
-  deploy:
-    if: ${{ github.event.workflow_run.conclusion == 'success' }}
-    runs-on: ubuntu-latest
-    permissions:
-      actions: read
-      contents: read
-      deployments: write
+# jobs:
+#   deploy:
+#     if: ${{ github.event.workflow_run.conclusion == 'success' }}
+#     runs-on: ubuntu-latest
+#     permissions:
+#       actions: read
+#       contents: read
+#       deployments: write
 
-    env:
-      REGION: eu-central-1
-      CLOUDFRONT_URL: ${{ secrets.CLOUDFRONT_URL }}
+#     env:
+#       REGION: eu-central-1
+#       CLOUDFRONT_URL: ${{ secrets.CLOUDFRONT_URL }}
 
-    steps:
-      - name: ➕ Create GitHub deployment
-        uses: chrnorm/deployment-action@v2
-        id: deployment
-        with:
-          token: ${{ github.token }}
-          environment: production
-          environment-url: ${{ env.CLOUDFRONT_URL }}
+#     steps:
+#       - name: ➕ Create GitHub deployment
+#         uses: chrnorm/deployment-action@v2
+#         id: deployment
+#         with:
+#           token: ${{ github.token }}
+#           environment: production
+#           environment-url: ${{ env.CLOUDFRONT_URL }}
 
-      - name: 📥 Download build artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: client-build
-          run-id: ${{ github.event.workflow_run.id }}
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          path: build/client/
+#       - name: 📥 Download build artifact
+#         uses: actions/download-artifact@v4
+#         with:
+#           name: client-build
+#           run-id: ${{ github.event.workflow_run.id }}
+#           github-token: ${{ secrets.GITHUB_TOKEN }}
+#           path: build/client/
 
-      - name: 🕹️ Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v5
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ env.REGION }}
+#       - name: 🕹️ Configure AWS credentials
+#         uses: aws-actions/configure-aws-credentials@v5
+#         with:
+#           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+#           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+#           aws-region: ${{ env.REGION }}
 
-      - name: 🔄️ Sync with S3
-        run: aws s3 sync --delete build/client/ ${{ secrets.BUCKET }}
+#       - name: 🔄️ Sync with S3
+#         run: aws s3 sync --delete build/client/ ${{ secrets.BUCKET }}
 
-      - name: 🟢 Invalidate CloudFront cache
-        run: |
-          aws cloudfront create-invalidation \
-            --distribution-id ${{ secrets.CLOUDFRONT_ID }} \
-            --paths "/*"
+#       - name: 🟢 Invalidate CloudFront cache
+#         run: |
+#           aws cloudfront create-invalidation \
+#             --distribution-id ${{ secrets.CLOUDFRONT_ID }} \
+#             --paths "/*"
 
-      - name: ✅ Update deployment status (success)
-        if: success()
-        uses: chrnorm/deployment-status@v2
-        with:
-          token: ${{ github.token }}
-          environment-url: ${{ env.CLOUDFRONT_URL }}
-          state: success
-          deployment-id: ${{ steps.deployment.outputs.deployment_id }}
+#       - name: ✅ Update deployment status (success)
+#         if: success()
+#         uses: chrnorm/deployment-status@v2
+#         with:
+#           token: ${{ github.token }}
+#           environment-url: ${{ env.CLOUDFRONT_URL }}
+#           state: success
+#           deployment-id: ${{ steps.deployment.outputs.deployment_id }}
 
-      - name: ❌ Update deployment status (failure)
-        if: failure()
-        uses: chrnorm/deployment-status@v2
-        with:
-          token: ${{ github.token }}
-          environment-url: ${{ env.CLOUDFRONT_URL }}
-          state: failure
-          deployment-id: ${{ steps.deployment.outputs.deployment_id }}
+#       - name: ❌ Update deployment status (failure)
+#         if: failure()
+#         uses: chrnorm/deployment-status@v2
+#         with:
+#           token: ${{ github.token }}
+#           environment-url: ${{ env.CLOUDFRONT_URL }}
+#           state: failure
+#           deployment-id: ${{ steps.deployment.outputs.deployment_id }}
