@@ -48,6 +48,9 @@ jobs:
         with:
           version: 10
 
+      - name: 🎇 Install dependencies
+        run: pnpm install
+
       - name: 🚀 Deploy CDK stack
         run: pnpm run deploy -- --context sources=build/client
         env:
