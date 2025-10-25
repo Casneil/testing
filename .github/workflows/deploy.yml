@@ -11,6 +11,8 @@ jobs:
     if: ${{ github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
     permissions:
+      actions: read
+      contents: read
       deployments: write
 
     env:
@@ -29,9 +31,9 @@ jobs:
       - name: 📥 Download build artifact
         uses: actions/download-artifact@v4
         with:
-          name: client-build
-          run-id: ${{ github.event.workflow_run.id }}
-          path: build/client/
+        name: client-build
+        run-id: ${{ github.event.workflow_run.id }}
+        github-token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: 🕹️ Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v5
