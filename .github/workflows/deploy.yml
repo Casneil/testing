@@ -27,9 +27,10 @@ jobs:
           environment-url: ${{ env.CLOUDFRONT_URL }}
 
       - name: 📥 Download build artifact
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v5
         with:
           name: client-build
+          run-id: ${{ github.event.workflow_run.id }}
           path: build/client/
 
       - name: 🕹️ Configure AWS credentials
