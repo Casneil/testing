@@ -18,7 +18,7 @@ const app = new App();
 const environment = app.node.tryGetContext('ENVIRONMENT') || 'stage';
 
 
-console.log("ENV": environment);
+console.log("ENV", environment);
 
 
 interface S3CloudFrontStackProps extends StackProps {
