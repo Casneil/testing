@@ -15,7 +15,7 @@ import 'source-map-support/register';
 import { App } from 'aws-cdk-lib';
 const app = new App();
 
-const environment = app.node.tryGetContext('environment') || 'stage';
+const environment = app.node.tryGetContext('ENVIRONMENT') || 'stage';
 
 interface S3CloudFrontStackProps extends StackProps {
 	environment: string;
