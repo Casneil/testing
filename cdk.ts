@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+import "source-map-support/register.js"
 import { BlockPublicAccess, Bucket } from 'aws-cdk-lib/aws-s3';
 import { ViewerProtocolPolicy, Distribution } from 'aws-cdk-lib/aws-cloudfront';
 import { Construct } from 'constructs';
