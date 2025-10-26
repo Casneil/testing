@@ -4,7 +4,8 @@ import { BlockPublicAccess, Bucket } from 'aws-cdk-lib/aws-s3';
 import { ViewerProtocolPolicy, Distribution } from 'aws-cdk-lib/aws-cloudfront';
 import { Construct } from 'constructs';
 import { RemovalPolicy, Stack } from 'aws-cdk-lib';
-import type{ StackProps } from 'aws-cdk-lib';
+import type { StackProps } from 'aws-cdk-lib';
+import * as s3deploy from 'aws-cdk-lib/aws-s3-deployment';
 
 import { ARecord, HostedZone, RecordTarget } from 'aws-cdk-lib/aws-route53';
 import { Certificate, CertificateValidation } from 'aws-cdk-lib/aws-certificatemanager';
@@ -59,6 +60,11 @@ export class CdkSpaDeploymentOacStack extends Stack {
 			blockPublicAccess: BlockPublicAccess.BLOCK_ALL,
 			removalPolicy: RemovalPolicy.DESTROY,
 			autoDeleteObjects: true
+		});
+
+		new s3deploy.BucketDeployment(this, 'DeployWebsite', {
+			sources: [s3deploy.Source.asset('build/client')],
+			destinationBucket: bucket,
 		});
 
 		const dist = new Distribution(this, 'Distribution', {
