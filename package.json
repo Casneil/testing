@@ -8,7 +8,8 @@
     "test-prod": "node prod-server.js",
     "typecheck": "react-router typegen && tsc",
     "cdk": "cdk",
-    "deploy": "pnpm run build && pnpm cdk deploy --app \"pnpx tsx cdk.ts\" --require-approval never"
+"deploy": "pnpm run build && pnpm cdk deploy --app pnpx tsx cdk.ts --require-approval never"
+
   },
   "dependencies": {
     "@react-router/node": "^7.9.2",
