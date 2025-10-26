@@ -62,7 +62,6 @@ jobs:
         run: pnpm run deploy -- --context sources=build/client
         env:
           AWS_REGION: ${{ env.REGION }}
-          ENVIRONMENT: production
 
       - name: ✅ Update deployment status (success)
         if: success()

@@ -13,9 +13,10 @@ import { S3BucketOrigin } from 'aws-cdk-lib/aws-cloudfront-origins';
 
 import 'source-map-support/register';
 import { App } from 'aws-cdk-lib';
+
 const app = new App();
 
-const environment = app.node.tryGetContext('ENVIRONMENT') || 'stage';
+const environment = app.node.tryGetContext('environment') || 'stage';
 
 
 console.log("ENV", environment);
